@@ -127,3 +127,10 @@ query {
 ## Variables de entorno
 
 Ver `.env.example` para las variables disponibles.
+
+## Derechos de autor
+
+© 2026 Facundo Sansalone. Todos los derechos reservados.
+
+Este código se publica solo para consulta y como portfolio; no se permite su uso, copia,
+modificación ni distribución sin autorización expresa del autor.
