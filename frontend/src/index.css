@@ -3,44 +3,128 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
-    @apply bg-navy-950 text-slate-100 font-body antialiased;
+    @apply bg-navy-950 font-body text-slate-100;
   }
 
   h1, h2, h3 {
     @apply font-display;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    @apply bg-gold-500/30 text-white;
+  }
+
+  /* Foco visible por teclado en todo lo interactivo; :where() no suma especificidad */
+  :where(a, button, select, summary, [tabindex]):focus-visible {
+    outline: 2px solid theme('colors.gold.400');
+    outline-offset: 2px;
   }
 }
 
 @layer components {
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .btn-ghost {
+    @apply inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-lg
+           px-4 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50;
+    transition-property: background-color, border-color, color, box-shadow, transform;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+  }
+
+  :is(.btn-primary, .btn-secondary, .btn-danger, .btn-ghost):not(:disabled):active {
+    transform: scale(0.97);
+  }
+
   .btn-primary {
-    @apply bg-gold-500 hover:bg-gold-600 text-navy-950 font-semibold px-6 py-2.5 rounded-lg
-           transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:ring-offset-2
-           focus:ring-offset-navy-950 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-gold-500 text-navy-950 shadow-sm shadow-black/30 hover:bg-gold-400;
   }
 
   .btn-secondary {
-    @apply bg-navy-700 hover:bg-navy-600 text-slate-100 font-semibold px-6 py-2.5 rounded-lg
-           border border-navy-600 transition-all duration-200 focus:outline-none focus:ring-2
-           focus:ring-navy-400 focus:ring-offset-2 focus:ring-offset-navy-950;
+    @apply border border-navy-600 bg-navy-800 text-slate-100 hover:border-navy-500 hover:bg-navy-700;
   }
 
   .btn-danger {
-    @apply bg-red-700 hover:bg-red-600 text-white font-semibold px-6 py-2.5 rounded-lg
-           transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-400;
+    @apply border border-red-500/40 bg-red-500/10 text-red-200 hover:border-red-400/60 hover:bg-red-500/20;
+  }
+
+  .btn-ghost {
+    @apply text-slate-300 hover:bg-navy-800 hover:text-white;
+  }
+
+  .btn-sm {
+    @apply gap-1.5 px-3 py-1.5 text-xs;
   }
 
   .input-field {
-    @apply w-full bg-navy-900 border border-navy-700 text-slate-100 rounded-lg px-4 py-2.5
-           focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent
-           placeholder:text-slate-500 transition-all duration-200;
+    @apply w-full rounded-lg border border-navy-700 bg-navy-950/60 px-3.5 py-2.5 text-sm text-slate-100
+           placeholder:text-slate-500 hover:border-navy-600
+           focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/25;
+    transition-property: border-color, box-shadow, background-color;
+    transition-duration: 150ms;
   }
 
+  .input-field[aria-invalid='true'] {
+    @apply border-red-500/70 focus:border-red-400 focus:ring-red-500/25;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-sm font-medium text-slate-300;
+  }
+
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400;
+  }
+
+  /* min-w-0: como ítem de grid no debe crecer por tablas anchas (scrollean adentro) */
   .card {
-    @apply bg-navy-900 border border-navy-800 rounded-xl p-6;
+    @apply min-w-0 rounded-xl border border-navy-800 bg-navy-900 p-6 shadow-card;
   }
 
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+    @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-semibold;
+  }
+
+  .code-chip {
+    @apply inline-flex items-center rounded border border-navy-600 bg-navy-800 px-1.5 py-px font-mono text-[11px]
+           font-medium tracking-wide text-slate-300;
+  }
+
+  .skeleton {
+    @apply animate-pulse rounded-md bg-navy-800;
+  }
+
+  /* Textura de "papel de seguridad" (guilloché) como en certificados y pasaportes */
+  .security-paper {
+    background-image:
+      repeating-radial-gradient(circle at 0% 0%, transparent 0 13px, rgb(214 164 63 / 0.07) 13px 14px),
+      repeating-radial-gradient(circle at 100% 100%, transparent 0 13px, rgb(112 131 168 / 0.09) 13px 14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

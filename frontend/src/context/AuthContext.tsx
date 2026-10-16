@@ -1,52 +1,49 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
+import type { Rol } from '../lib/types'
+
+const STORAGE_KEY = 'arm_user'
 
 interface AuthUser {
   email: string
-  rol: 'admin' | 'operador' | 'aduana'
+  rol: Rol
   token: string
 }
 
 interface AuthContextType {
   user: AuthUser | null
-  login: (email: string, rol: string, token: string) => void
+  login: (email: string, rol: Rol, token: string) => void
   logout: () => void
-  isLoading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+// Lectura sincrónica al montar: evita un render intermedio "sin sesión" y el parpadeo de carga
+function readStoredUser(): AuthUser | null {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    return stored ? (JSON.parse(stored) as AuthUser) : null
+  } catch {
+    return null
+  }
+}
 
-  useEffect(() => {
-    const stored = localStorage.getItem('arm_user')
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored))
-      } catch {
-        localStorage.removeItem('arm_user')
-      }
-    }
-    setIsLoading(false)
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<AuthUser | null>(readStoredUser)
+
+  const login = useCallback((email: string, rol: Rol, token: string) => {
+    const u: AuthUser = { email, rol, token }
+    setUser(u)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(u))
   }, [])
 
-  const login = (email: string, rol: string, token: string) => {
-    const u: AuthUser = { email, rol: rol as AuthUser['rol'], token }
-    setUser(u)
-    localStorage.setItem('arm_user', JSON.stringify(u))
-  }
-
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null)
-    localStorage.removeItem('arm_user')
-  }
+    localStorage.removeItem(STORAGE_KEY)
+  }, [])
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
-      {children}
-    </AuthContext.Provider>
-  )
+  const value = useMemo(() => ({ user, login, logout }), [user, login, logout])
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
